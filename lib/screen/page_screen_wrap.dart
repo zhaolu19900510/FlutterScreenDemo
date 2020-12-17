@@ -31,7 +31,7 @@ class TagItem extends StatelessWidget {
       height: 40,
       margin: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
       decoration: BoxDecoration(
-        color: Colors.cyan,
+          color: Colors.cyan,
           border: Border.all(color: Colors.blueAccent.withAlpha(60), width: 1.0),
           borderRadius: BorderRadius.all(Radius.circular(5))),
       child: Container(

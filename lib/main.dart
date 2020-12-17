@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_test_screen/exception/exception_test.dart';
 import 'package:flutter_test_screen/screen/page_screen_aspectratio.dart';
 import 'package:flutter_test_screen/screen/page_screen_base.dart';
 import 'package:flutter_test_screen/screen/page_screen_compute.dart';
@@ -7,8 +10,44 @@ import 'package:flutter_test_screen/screen/page_screen_flexible.dart';
 import 'package:flutter_test_screen/screen/page_screen_spacer.dart';
 import 'package:flutter_test_screen/screen/page_screen_wrap.dart';
 
-void main() {
-  runApp(MyApp());
+main() {
+  FlutterError.onError = (FlutterErrorDetails details) {
+    // FlutterError.dumpErrorToConsole(details);
+    Zone.current.handleUncaughtError(details.exception, details.stack);
+  };
+  // runZoned<Null>(() => runApp(MyApp()),
+  //     zoneSpecification: ZoneSpecification(print: (Zone self, ZoneDelegate parent, Zone zone, String line) {
+  //   parent.print(zone, "Intercepted: $line");
+  // }), onError: (obj, stack) {
+  //   print('onError: ---obj--  ' + obj.toString());
+  //   print('onError: ---stack--  ' + stack.toString());
+  // });
+  runZonedGuarded<Future<Null>>(() async {
+    runApp(MyApp());
+  }, (obj, stack) {
+    print('onError: ---obj--  ' + obj.toString());
+    print('onError: ---stack--  ' + stack.toString());
+  }, zoneSpecification: ZoneSpecification(print: (Zone self, ZoneDelegate parent, Zone zone, String line) {
+    parent.print(zone, "Intercepted: $line");
+  }));
+
+  ErrorWidget.builder = (FlutterErrorDetails flutterErrorDetails) {
+    return Scaffold(
+        body: Center(
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Icon(
+          Icons.error,
+          color: Colors.red,
+          size: 100,
+        ),
+        Text(
+          flutterErrorDetails.exceptionAsString(),
+          style: TextStyle(color: Colors.blue, fontSize: 14),
+          textAlign: TextAlign.start,
+        )
+      ]),
+    ));
+  };
 }
 
 class MyApp extends StatelessWidget {
@@ -20,15 +59,15 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage('Flutter Screen Demo'),
+      home: HomeExceptionPage('Flutter Exception Demo'),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomeScreenPage extends StatelessWidget {
   final String title;
 
-  HomePage(this.title);
+  HomeScreenPage(this.title);
 
   @override
   Widget build(BuildContext context) {
@@ -39,60 +78,90 @@ class HomePage extends StatelessWidget {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextButton(
+          children: [
+            GestureDetector(
               child: Text("Expanded"),
-              onPressed: () {
+              onTap: () {
                 Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) {
                   return ScreenExpandedPage();
                 }));
               },
             ),
-            TextButton(
+            GestureDetector(
               child: Text("Spacer"),
-              onPressed: () {
+              onTap: () {
                 Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) {
                   return ScreenSpacerPage();
                 }));
               },
             ),
-            TextButton(
+            GestureDetector(
               child: Text("Flexible"),
-              onPressed: () {
+              onTap: () {
                 Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) {
                   return ScreenFlexiblePage();
                 }));
               },
             ),
-            TextButton(
+            GestureDetector(
               child: Text("AspectRatio"),
-              onPressed: () {
+              onTap: () {
                 Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) {
                   return ScreenAspectRatioPage();
                 }));
               },
             ),
-            TextButton(
+            GestureDetector(
               child: Text("WrapPage"),
-              onPressed: () {
+              onTap: () {
                 Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) {
                   return WrapPage();
                 }));
               },
             ),
-            TextButton(
+            GestureDetector(
               child: Text("Cpmpute"),
-              onPressed: () {
+              onTap: () {
                 Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) {
                   return CpmputePage();
                 }));
               },
             ),
-            TextButton(
+            GestureDetector(
               child: Text("Base"),
-              onPressed: () {
+              onTap: () {
                 Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) {
                   return BaseScreenPage();
+                }));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class HomeExceptionPage extends StatelessWidget {
+  final String title;
+
+  HomeExceptionPage(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Flutter Exception Demo'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              child: Text("Exception"),
+              onTap: () {
+                Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) {
+                  return ExceptionTest();
                 }));
               },
             ),
